@@ -524,10 +524,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       if (active && reply) {
         this.post({ type: "assistantText", text: reply });
       }
-      // A turn completes when the agent returns to idle after generating (or
-      // after we answered a selector it had popped, e.g. `/model`).
-      const finished =
-        view.state === "idle" && (reply !== "" || rt.lastState === "generating" || rt.lastState === "prompt");
+      // A turn completes when the agent returns to idle. We used to require
+      // having seen a "generating" frame first, but action commands (/goal,
+      // /diff, tool-heavy turns) can complete before the debounce fires on a
+      // generating frame — so idle + pending is enough to close the turn.
+      const finished = view.state === "idle" && rt.readyOnce;
       if (finished) {
         this.store.addMessage(sessionId, { role: "assistant", text: reply || "_(no reply)_" });
         if (active) {
