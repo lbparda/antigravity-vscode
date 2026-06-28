@@ -531,6 +531,9 @@
   function reflectInput(text) {
     if (document.activeElement === input || locked()) return;
     if (Date.now() - state.lastSubmit < 700) return;
+    // Never mirror slash commands — they are agy's internal TUI input, not
+    // user-facing prompts. Reflecting them causes send→echo→reflect loops.
+    if (text.startsWith("/")) return;
     if (input.value === "" || input.value === state.reflected) {
       if (input.value !== text) input.value = text;
       state.reflected = text;
