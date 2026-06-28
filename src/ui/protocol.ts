@@ -48,6 +48,7 @@ export interface SessionSummary {
 /** Messages sent from the extension host → webview. */
 export type HostToWebview =
   | { type: "state"; state: ChatState }
+  | { type: "fileAttached"; path: string }
   | { type: "slashCatalog"; commands: SlashCommand[] }
   | { type: "sessions"; sessions: SessionSummary[] }
   | { type: "openSession"; id: string; title: string; messages: ChatMessage[] }
@@ -70,6 +71,7 @@ export type HostToWebview =
 /** Messages sent from the webview → extension host. */
 export type WebviewToHost =
   | { type: "ready" }
+  | { type: "attachFile" }
   | { type: "newSession"; options?: NewSessionOptions }
   | { type: "openSession"; id: string }
   | { type: "deleteSession"; id: string }

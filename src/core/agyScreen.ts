@@ -278,14 +278,25 @@ function locateSelector(lines: string[]): Located | undefined {
   }
 
   // Vertical: a contiguous run of caret/indent rows ending just above the footer.
+  // On Windows, xterm headless renders option rows without leading spaces, so we
+  // also accept plain-text rows (any non-structural, non-empty line) as options.
   const rows: { raw: string; selected: boolean; idx: number }[] = [];
   for (let j = i; j >= 0; j--) {
     const raw = lines[j].replace(/\s+$/, "");
-    if (raw.trim() === "") {
+    const t = raw.trim();
+    if (t === "") {
       break;
     }
     const caret = isCaretRow(raw);
-    if (caret || isIndentRow(raw)) {
+    const isOptionRow =
+      caret ||
+      isIndentRow(raw) ||
+      // Accept unindented non-structural text lines as options when inside a
+      // Navigate-footer selector block (xterm headless strips leading spaces).
+      (!isRule(t) && !isBanner(t) && !isStatus(t) && !isSpinner(t) &&
+       !isToolCall(t) && !isToolOut(t) && !isEmptyPrompt(t) && !isSelectFooter(t) &&
+       !isNoise(t) && !isUserEcho(t));
+    if (isOptionRow) {
       rows.unshift({ raw, selected: caret, idx: j });
     } else {
       break;
@@ -394,7 +405,7 @@ export function interpretScreen(rawLines: string[]): ScreenView {
   const selector = locateSelector(lines);
 
   let state: AgyState;
-  if (/not signed in|Signing in/i.test(joined)) {
+  if (/not signed in|Signing in/i.test(joined) && !/\? for shortcuts/.test(joined)) {
     state = "signin";
   } else if (selector) {
     state = "prompt";

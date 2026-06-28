@@ -21,13 +21,30 @@
  * Lifecycle coupling (see [ui/chatViewProvider.ts]): deleting a session disposes
  * its process; the process exiting tells the view to drop the session.
  */
+import * as vscode from "vscode";
 import { ChildProcess, spawn } from "node:child_process";
+import * as path from "node:path";
 
 import { Terminal } from "@xterm/headless";
 
 import { buildSessionArgs } from "../core/argBuilder";
 import { ScreenView, interpretScreen, moveKeys, selectionKeys } from "../core/agyScreen";
 import { AntigravityConfig } from "../core/types";
+
+// On Windows, load node-pty from VS Code's own bundled copy (avoids native rebuild).
+function loadNodePty(): typeof import("node-pty") | null {
+  if (process.platform !== "win32") {
+    return null;
+  }
+  try {
+    const appRoot = vscode.env.appRoot;
+    const ptyPath = path.join(appRoot, "node_modules", "node-pty");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require(ptyPath) as typeof import("node-pty");
+  } catch {
+    return null;
+  }
+}
 
 /** Vertical/horizontal selector orientation (see core/agyScreen.SelectPrompt). */
 type Layout = "vertical" | "horizontal";
@@ -116,35 +133,82 @@ export class InteractiveSessionService {
       config
     );
 
-    // Build `stty <size>; exec agy …` and hand it to `script` as a single -c arg.
-    const sh = (s: string): string => `'${s.replace(/'/g, "'\\''")}'`;
-    const inner =
-      `stty rows ${PTY_ROWS} cols ${PTY_COLS} 2>/dev/null; exec ` +
-      [agy, ...argv].map(sh).join(" ");
-
-    const proc = spawn("script", ["-q", "-e", "-c", inner, "/dev/null"], {
-      cwd: dirs[0],
-      env: { ...process.env, TERM: "xterm-256color" }
-    });
-
     const term = new Terminal({ cols: PTY_COLS, rows: PTY_ROWS, scrollback: 5000, allowProposedApi: true });
-    const entry: Live = { proc, term, observer, raw: "", lastSerialized: "", ready: false, queue: [] };
-    this.live.set(id, entry);
 
-    const onData = (buf: Buffer): void => {
-      const text = buf.toString("utf8");
-      entry.raw += text;
-      if (entry.raw.length > RAW_CAP) {
-        entry.raw = entry.raw.slice(-RAW_CAP);
-      }
-      entry.mirror?.(text);
-      term.write(text);
-      this.scheduleRender(id);
-    };
-    proc.stdout?.on("data", onData);
-    proc.stderr?.on("data", onData);
-    proc.on("exit", (code) => this.handleExit(id, code));
-    proc.on("error", () => this.handleExit(id, null));
+    // On Windows, use node-pty (from VS Code's own bundle) instead of `script`.
+    // On Unix, use the original `script` PTY shim.
+    let proc: ChildProcess;
+    const nodePty = loadNodePty();
+
+    if (process.platform === "win32" && nodePty) {
+      const ptyProc = nodePty.spawn(agy, argv, {
+        name: "xterm-256color",
+        cols: PTY_COLS,
+        rows: PTY_ROWS,
+        cwd: dirs[0] ?? process.cwd(),
+        env: { ...process.env } as Record<string, string>
+      });
+
+      // Wrap node-pty's ITerminal into a ChildProcess-compatible shape
+      // by creating a minimal adapter that the existing Live machinery can drive.
+      const fakeStdin = {
+        write: (data: string) => { ptyProc.write(data); return true; },
+        end: () => { ptyProc.write("\x04"); }
+      };
+      const fakeProcEmitter = new (require("node:events").EventEmitter)();
+      proc = { stdin: fakeStdin, stdout: null, stderr: null,
+        kill: (sig?: string) => { try { ptyProc.kill(sig); } catch {} return true; },
+        on: (ev: string, cb: (...a: unknown[]) => void) => { fakeProcEmitter.on(ev, cb); return proc; },
+        once: (ev: string, cb: (...a: unknown[]) => void) => { fakeProcEmitter.once(ev, cb); return proc; }
+      } as unknown as ChildProcess;
+
+      const entry: Live = { proc, term, observer, raw: "", lastSerialized: "", ready: false, queue: [] };
+      this.live.set(id, entry);
+
+      ptyProc.onData((text: string) => {
+        entry.raw += text;
+        if (entry.raw.length > RAW_CAP) {
+          entry.raw = entry.raw.slice(-RAW_CAP);
+        }
+        entry.mirror?.(text);
+        term.write(text);
+        this.scheduleRender(id);
+      });
+      ptyProc.onExit(({ exitCode }) => {
+        fakeProcEmitter.emit("exit", exitCode ?? null);
+        this.handleExit(id, exitCode ?? null);
+      });
+    } else {
+      // Unix: original `script` PTY shim
+      const sh = (s: string): string => `'${s.replace(/'/g, "'\\''")}'`;
+      const inner =
+        `stty rows ${PTY_ROWS} cols ${PTY_COLS} 2>/dev/null; exec ` +
+        [agy, ...argv].map(sh).join(" ");
+
+      proc = spawn("script", ["-q", "-e", "-c", inner, "/dev/null"], {
+        cwd: dirs[0],
+        env: { ...process.env, TERM: "xterm-256color" }
+      });
+
+      const entry: Live = { proc, term, observer, raw: "", lastSerialized: "", ready: false, queue: [] };
+      this.live.set(id, entry);
+
+      const onData = (buf: Buffer): void => {
+        const text = buf.toString("utf8");
+        entry.raw += text;
+        if (entry.raw.length > RAW_CAP) {
+          entry.raw = entry.raw.slice(-RAW_CAP);
+        }
+        entry.mirror?.(text);
+        term.write(text);
+        this.scheduleRender(id);
+      };
+      proc.stdout?.on("data", onData);
+      proc.stderr?.on("data", onData);
+      proc.on("exit", (code) => this.handleExit(id, code));
+      proc.on("error", () => this.handleExit(id, null));
+      return; // early return — entry already set above for Unix path
+    }
   }
 
   /** Sends a chat prompt (one logical line) to the agent, queueing if not ready. */

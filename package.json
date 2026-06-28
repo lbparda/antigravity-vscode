@@ -1,260 +1,260 @@
 {
-  "name": "antigravity-vscode",
-  "displayName": "Antigravity for VS Code",
-  "description": "Bring Google's Antigravity CLI (agy) into VS Code: an agentic coding companion with a Material 3 Expressive chat UI, a slash-command navigator, interactive sessions with in-chat option pickers, and Google sign-in.",
-  "version": "0.13.2",
-  "license": "MIT",
-  "publisher": "lyadhgod",
-  "engines": {
-    "vscode": "^1.90.0"
-  },
-  "icon": "media/logo.png",
-  "homepage": "https://github.com/lyadhgod/antigravity-vscode",
-  "bugs": {
-    "url": "https://github.com/lyadhgod/antigravity-vscode/issues"
-  },
-  "qna": false,
-  "categories": [
-    "AI",
-    "Chat"
-  ],
-  "keywords": [
-    "google",
-    "antigravity",
-    "agy",
-    "gemini",
-    "ai",
-    "agent",
-    "cli"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lyadhgod/antigravity-vscode"
-  },
-  "main": "./dist/extension.js",
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "contributes": {
-    "configuration": {
-      "title": "Antigravity",
-      "properties": {
-        "antigravity.cliPath": {
-          "type": "string",
-          "default": "agy",
-          "markdownDescription": "Path to the Antigravity CLI binary. Leave as `agy` to resolve it from your `PATH`, or set an absolute path (e.g. `~/.local/bin/agy`)."
-        },
-        "antigravity.extraArgs": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [],
-          "description": "Additional command-line arguments appended to every agy invocation."
-        },
-        "antigravity.skipPermissions": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Pass `--dangerously-skip-permissions` so the agent auto-approves every tool action. **Use with caution** — the agent can edit files and run commands without confirmation."
-        },
-        "antigravity.sandbox": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Pass `--sandbox` to run the agent with terminal restrictions enabled."
-        },
-        "antigravity.autoAddWorkspaceFolders": {
-          "type": "boolean",
-          "default": true,
-          "markdownDescription": "Pass the *additional* roots of a multi-root workspace to the CLI with `--add-dir`. The primary folder is the agent's working directory and is always visible, so it is never re-added."
-        }
-      }
-    },
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "antigravity",
-          "title": "Antigravity",
-          "icon": "media/icon.svg"
-        }
-      ]
-    },
-    "views": {
-      "antigravity": [
-        {
-          "id": "antigravity.chatView",
-          "name": "Chat",
-          "type": "webview",
-          "icon": "media/icon.svg"
-        }
-      ]
-    },
-    "commands": [
-      {
-        "command": "antigravity.openChat",
-        "title": "Open Chat",
-        "category": "Antigravity",
-        "icon": "$(comment-discussion)"
-      },
-      {
-        "command": "antigravity.newChat",
-        "title": "New Chat",
-        "category": "Antigravity",
-        "icon": "$(add)"
-      },
-      {
-        "command": "antigravity.ask",
-        "title": "Ask…",
-        "category": "Antigravity",
-        "icon": "$(sparkle)"
-      },
-      {
-        "command": "antigravity.askWithSelection",
-        "title": "Ask About Selection",
-        "category": "Antigravity"
-      },
-      {
-        "command": "antigravity.insertSlashCommand",
-        "title": "Insert Slash Command…",
-        "category": "Antigravity",
-        "icon": "$(symbol-event)"
-      },
-      {
-        "command": "antigravity.startSession",
-        "title": "Toggle Session Terminal",
-        "category": "Antigravity",
-        "icon": "$(terminal)"
-      },
-      {
-        "command": "antigravity.addDirectory",
-        "title": "Add Directory to Agent Workspace",
-        "category": "Antigravity"
-      },
-      {
-        "command": "antigravity.stop",
-        "title": "Stop Running Task",
-        "category": "Antigravity",
-        "icon": "$(stop-circle)"
-      },
-      {
-        "command": "antigravity.login",
-        "title": "Sign In with Google",
-        "category": "Antigravity"
-      },
-      {
-        "command": "antigravity.logout",
-        "title": "Sign Out",
-        "category": "Antigravity"
-      },
-      {
-        "command": "antigravity.update",
-        "title": "Update CLI",
-        "category": "Antigravity"
-      },
-      {
-        "command": "antigravity.showChangelog",
-        "title": "Show CLI Changelog",
-        "category": "Antigravity"
-      },
-      {
-        "command": "antigravity.managePlugins",
-        "title": "Manage Plugins",
-        "category": "Antigravity"
-      },
-      {
-        "command": "antigravity.showVersion",
-        "title": "Show CLI Version",
-        "category": "Antigravity"
-      },
-      {
-        "command": "antigravity.openSettings",
-        "title": "Open Settings",
-        "category": "Antigravity",
-        "icon": "$(gear)"
-      }
-    ],
-    "menus": {
-      "view/title": [
-        {
-          "command": "antigravity.startSession",
-          "when": "view == antigravity.chatView",
-          "group": "navigation@1"
-        },
-        {
-          "command": "antigravity.openSettings",
-          "when": "view == antigravity.chatView",
-          "group": "navigation@2"
-        },
-        {
-          "command": "antigravity.addDirectory",
-          "when": "view == antigravity.chatView",
-          "group": "1_session@1"
-        },
-        {
-          "command": "antigravity.managePlugins",
-          "when": "view == antigravity.chatView",
-          "group": "1_session@2"
-        },
-        {
-          "command": "antigravity.showVersion",
-          "when": "view == antigravity.chatView",
-          "group": "1_session@3"
-        },
-        {
-          "command": "antigravity.login",
-          "when": "view == antigravity.chatView",
-          "group": "2_account@1"
-        },
-        {
-          "command": "antigravity.logout",
-          "when": "view == antigravity.chatView",
-          "group": "2_account@2"
-        }
-      ],
-      "editor/context": [
-        {
-          "command": "antigravity.askWithSelection",
-          "when": "editorHasSelection",
-          "group": "antigravity@1"
-        }
-      ],
-      "commandPalette": [
-        {
-          "command": "antigravity.askWithSelection",
-          "when": "editorHasSelection"
-        }
-      ]
-    },
-    "keybindings": [
-      {
-        "command": "antigravity.openChat",
-        "key": "ctrl+alt+a",
-        "mac": "cmd+alt+a"
-      },
-      {
-        "command": "antigravity.askWithSelection",
-        "key": "ctrl+alt+k",
-        "mac": "cmd+alt+k",
-        "when": "editorHasSelection"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "node esbuild.js",
-    "package": "node esbuild.js --production",
-    "watch": "node esbuild.js --watch",
-    "check-types": "tsc --noEmit",
-    "pretest": "tsc -p tsconfig.test.json && node esbuild.js",
-    "test": "mocha",
-    "lint": "tsc --noEmit"
-  },
-  "devDependencies": {
-    "@types/mocha": "^10.0.6",
-    "@types/node": "^20.11.0",
-    "@types/vscode": "^1.90.0",
-    "@xterm/headless": "^6.0.0",
-    "esbuild": "^0.21.5",
-    "mocha": "^10.4.0",
-    "typescript": "^5.4.5"
-  }
+	"name": "antigravity-vscode-win",
+	"displayName": "Antigravity for VS Code (Win)",
+	"description": "Bring Google's Antigravity CLI (agy) into VS Code: an agentic coding companion with a Material 3 Expressive chat UI, a slash-command navigator, interactive sessions with in-chat option pickers, and Google sign-in.",
+	"version": "0.13.2",
+	"license": "MIT",
+	"publisher": "local",
+	"engines": {
+		"vscode": "^1.90.0"
+	},
+	"icon": "media/logo.png",
+	"homepage": "https://github.com/lyadhgod/antigravity-vscode",
+	"bugs": {
+		"url": "https://github.com/lyadhgod/antigravity-vscode/issues"
+	},
+	"qna": false,
+	"categories": [
+		"AI",
+		"Chat"
+	],
+	"keywords": [
+		"google",
+		"antigravity",
+		"agy",
+		"gemini",
+		"ai",
+		"agent",
+		"cli"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/lyadhgod/antigravity-vscode"
+	},
+	"main": "./dist/extension.js",
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"contributes": {
+		"configuration": {
+			"title": "Antigravity",
+			"properties": {
+				"antigravity.cliPath": {
+					"type": "string",
+					"default": "agy",
+					"markdownDescription": "Path to the Antigravity CLI binary. Leave as `agy` to resolve it from your `PATH`, or set an absolute path (e.g. `~/.local/bin/agy`)."
+				},
+				"antigravity.extraArgs": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": [],
+					"description": "Additional command-line arguments appended to every agy invocation."
+				},
+				"antigravity.skipPermissions": {
+					"type": "boolean",
+					"default": false,
+					"markdownDescription": "Pass `--dangerously-skip-permissions` so the agent auto-approves every tool action. **Use with caution** — the agent can edit files and run commands without confirmation."
+				},
+				"antigravity.sandbox": {
+					"type": "boolean",
+					"default": false,
+					"markdownDescription": "Pass `--sandbox` to run the agent with terminal restrictions enabled."
+				},
+				"antigravity.autoAddWorkspaceFolders": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "Pass the *additional* roots of a multi-root workspace to the CLI with `--add-dir`. The primary folder is the agent's working directory and is always visible, so it is never re-added."
+				}
+			}
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "antigravity",
+					"title": "Antigravity",
+					"icon": "media/icon.svg"
+				}
+			]
+		},
+		"views": {
+			"antigravity": [
+				{
+					"id": "antigravity.chatView",
+					"name": "Chat",
+					"type": "webview",
+					"icon": "media/icon.svg"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "antigravity.openChat",
+				"title": "Open Chat",
+				"category": "Antigravity",
+				"icon": "$(comment-discussion)"
+			},
+			{
+				"command": "antigravity.newChat",
+				"title": "New Chat",
+				"category": "Antigravity",
+				"icon": "$(add)"
+			},
+			{
+				"command": "antigravity.ask",
+				"title": "Ask…",
+				"category": "Antigravity",
+				"icon": "$(sparkle)"
+			},
+			{
+				"command": "antigravity.askWithSelection",
+				"title": "Ask About Selection",
+				"category": "Antigravity"
+			},
+			{
+				"command": "antigravity.insertSlashCommand",
+				"title": "Insert Slash Command…",
+				"category": "Antigravity",
+				"icon": "$(symbol-event)"
+			},
+			{
+				"command": "antigravity.startSession",
+				"title": "Toggle Session Terminal",
+				"category": "Antigravity",
+				"icon": "$(terminal)"
+			},
+			{
+				"command": "antigravity.addDirectory",
+				"title": "Add Directory to Agent Workspace",
+				"category": "Antigravity"
+			},
+			{
+				"command": "antigravity.stop",
+				"title": "Stop Running Task",
+				"category": "Antigravity",
+				"icon": "$(stop-circle)"
+			},
+			{
+				"command": "antigravity.login",
+				"title": "Sign In with Google",
+				"category": "Antigravity"
+			},
+			{
+				"command": "antigravity.logout",
+				"title": "Sign Out",
+				"category": "Antigravity"
+			},
+			{
+				"command": "antigravity.update",
+				"title": "Update CLI",
+				"category": "Antigravity"
+			},
+			{
+				"command": "antigravity.showChangelog",
+				"title": "Show CLI Changelog",
+				"category": "Antigravity"
+			},
+			{
+				"command": "antigravity.managePlugins",
+				"title": "Manage Plugins",
+				"category": "Antigravity"
+			},
+			{
+				"command": "antigravity.showVersion",
+				"title": "Show CLI Version",
+				"category": "Antigravity"
+			},
+			{
+				"command": "antigravity.openSettings",
+				"title": "Open Settings",
+				"category": "Antigravity",
+				"icon": "$(gear)"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "antigravity.startSession",
+					"when": "view == antigravity.chatView",
+					"group": "navigation@1"
+				},
+				{
+					"command": "antigravity.openSettings",
+					"when": "view == antigravity.chatView",
+					"group": "navigation@2"
+				},
+				{
+					"command": "antigravity.addDirectory",
+					"when": "view == antigravity.chatView",
+					"group": "1_session@1"
+				},
+				{
+					"command": "antigravity.managePlugins",
+					"when": "view == antigravity.chatView",
+					"group": "1_session@2"
+				},
+				{
+					"command": "antigravity.showVersion",
+					"when": "view == antigravity.chatView",
+					"group": "1_session@3"
+				},
+				{
+					"command": "antigravity.login",
+					"when": "view == antigravity.chatView",
+					"group": "2_account@1"
+				},
+				{
+					"command": "antigravity.logout",
+					"when": "view == antigravity.chatView",
+					"group": "2_account@2"
+				}
+			],
+			"editor/context": [
+				{
+					"command": "antigravity.askWithSelection",
+					"when": "editorHasSelection",
+					"group": "antigravity@1"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "antigravity.askWithSelection",
+					"when": "editorHasSelection"
+				}
+			]
+		},
+		"keybindings": [
+			{
+				"command": "antigravity.openChat",
+				"key": "ctrl+alt+a",
+				"mac": "cmd+alt+a"
+			},
+			{
+				"command": "antigravity.askWithSelection",
+				"key": "ctrl+alt+k",
+				"mac": "cmd+alt+k",
+				"when": "editorHasSelection"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run package",
+		"compile": "node esbuild.js",
+		"package": "node esbuild.js --production",
+		"watch": "node esbuild.js --watch",
+		"check-types": "tsc --noEmit",
+		"pretest": "tsc -p tsconfig.test.json && node esbuild.js",
+		"test": "mocha",
+		"lint": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@types/mocha": "^10.0.6",
+		"@types/node": "^20.11.0",
+		"@types/vscode": "^1.90.0",
+		"@xterm/headless": "^6.0.0",
+		"esbuild": "^0.21.5",
+		"mocha": "^10.4.0",
+		"typescript": "^5.4.5"
+	}
 }

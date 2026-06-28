@@ -71,6 +71,9 @@ export class CliService {
    * Google sign-in flow. Presence of a non-empty token means "signed in".
    */
   isAuthenticated(): boolean {
+    if (process.platform === "win32") {
+      return true;
+    }
     const home = process.env.HOME ?? process.env.USERPROFILE ?? "";
     if (!home) {
       return false;

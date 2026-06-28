@@ -484,6 +484,7 @@
   //  Composer + send/stop (#2)
   // ===========================================================================
   const expandBtn = $("expand");
+  const attachBtn = $("attach");
   // Height is CSS-driven now: one line when collapsed (#1), full height when
   // expanded (#2) — no JS autosize. While the agent is busy OR a selector is up,
   // lock the input + expander but keep the stop button live (#6).
@@ -493,7 +494,7 @@
     document.body.classList.toggle("locked", l);
     action.dataset.busy = String(l);
     action.title = l ? "Stop" : "Send (Enter)"; action.setAttribute("aria-label", l ? "Stop" : "Send");
-    input.readOnly = l; expandBtn.disabled = l;
+    input.readOnly = l; expandBtn.disabled = l; attachBtn.disabled = l;
   }
   function setBusy(busy) {
     state.busy = busy; refreshLock();
@@ -546,6 +547,9 @@
     vscode.postMessage({ type: "cancel" });
   }
   action.addEventListener("click", () => (locked() ? interrupt() : submit()));
+
+  // Attach file button: asks the host to open a file picker, then inserts the path.
+  $("attach").addEventListener("click", () => vscode.postMessage({ type: "attachFile" }));
 
   // Toggle expanded/collapsed with a FLIP slide so the expand button visibly
   // moves down onto the send button (and back) instead of snapping (#3).
@@ -691,6 +695,13 @@
       case "prompt": renderPrompt(msg.prompt); break;
       case "promptEnd": clearPrompt(); break;
       case "cliInput": reflectInput(msg.text); break;
+      case "fileAttached": {
+        const p = msg.path;
+        const cur = input.value;
+        input.value = cur ? cur + " " + p : p;
+        input.focus();
+        break;
+      }
       case "working": setWorking(msg.value); break;
       case "system":
         if (msg.text === "__open_slash__") { input.value = "/"; input.focus(); maybeShowSlash(); }

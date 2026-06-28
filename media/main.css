@@ -245,18 +245,18 @@ body[data-view="chat"] .app-bar .app-bar__back {
 }
 .prompt__context code { white-space: pre-wrap; overflow-wrap: anywhere; }
 .prompt__title { font-weight: 600; font-size: 13px; color: var(--ag-on-surface-variant); }
-.prompt__options { display: flex; flex-direction: column; gap: 8px; }
-.prompt--horizontal .prompt__options { flex-direction: row; flex-wrap: wrap; }
+.prompt__options { display: flex; flex-direction: column; gap: 5px; }
+.prompt--horizontal .prompt__options { flex-direction: row; flex-wrap: wrap; gap: 5px; }
 .prompt__option {
   position: relative; overflow: hidden; text-align: left; cursor: pointer;
-  font: inherit; font-weight: 500; color: var(--ag-on-surface);
-  padding: 11px 16px; border-radius: var(--ag-shape-md);
+  font: inherit; font-size: 12px; font-weight: 500; color: var(--ag-on-surface);
+  padding: 6px 12px; border-radius: var(--ag-shape-md);
   background: var(--ag-surface-container-highest); border: 1.5px solid var(--ag-outline-variant);
   transition: transform var(--ag-dur-short) var(--ag-ease-spring),
               border-color var(--ag-dur-short) var(--ag-ease-emphasized),
               background var(--ag-dur-short) var(--ag-ease-emphasized);
 }
-.prompt--horizontal .prompt__option { border-radius: var(--ag-shape-full); padding: 9px 18px; }
+.prompt--horizontal .prompt__option { border-radius: var(--ag-shape-full); padding: 5px 13px; }
 .prompt__option::after {
   content: ""; position: absolute; inset: 0; background: var(--ag-primary);
   opacity: 0; transition: opacity var(--ag-dur-short) var(--ag-ease-emphasized);
@@ -375,6 +375,7 @@ body.awaiting-prompt .field { pointer-events: none; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: auto;
 }
 .field__input::placeholder { color: var(--ag-on-surface-variant); }
+.field__attach { width: 28px; height: 28px; flex: 0 0 auto; border-radius: var(--ag-shape-sm); color: var(--ag-on-surface-variant); padding: 0; }
 /* Send + expand buttons: a row when collapsed (expand left of send), a column
    when expanded (send on top, collapse pinned at the bottom — #3). */
 .field__actions { flex: 0 0 auto; display: flex; flex-direction: row-reverse; align-items: center; gap: 8px; }

@@ -347,6 +347,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       case "promptCancel":
         this.skipSelector(); // the card's own Skip/Cancel: dismiss, keep the turn
         break;
+      case "attachFile":
+        void this.handleAttachFile();
+        break;
       case "login":
         void vscode.commands.executeCommand("antigravity.login");
         break;
@@ -579,6 +582,21 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
   }
 
   // --- Helpers --------------------------------------------------------------
+
+  private async handleAttachFile(): Promise<void> {
+    const uris = await vscode.window.showOpenDialog({
+      canSelectMany: false,
+      openLabel: "Attach",
+      filters: {
+        "All files": ["*"],
+        "Images": ["png", "jpg", "jpeg", "gif", "webp", "svg"],
+        "Text / code": ["txt", "md", "ts", "js", "py", "json", "yaml", "yml", "toml", "sh", "bash", "html", "css"]
+      }
+    });
+    if (uris && uris[0]) {
+      this.post({ type: "fileAttached", path: uris[0].fsPath });
+    }
+  }
 
   private disposeMirror(sessionId: string): void {
     const rt = this.runtimes.get(sessionId);

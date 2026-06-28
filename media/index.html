@@ -82,6 +82,9 @@
       <!-- Non-blocking indicator while a background task (/tasks) is running. -->
       <div id="bgtask" class="bgtask" hidden><span id="bgtask-icon" class="bgtask__icon"></span><span>Working in the background…</span></div>
       <div class="field">
+        <button id="attach" class="icon-btn field__attach" type="button" title="Attach file" aria-label="Attach file">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+        </button>
         <textarea id="input" class="field__input" rows="1"
           placeholder="Ask Antigravity, or type / for commands…" aria-label="Message Antigravity"></textarea>
         <!-- Send + expand share a container so we can switch row (collapsed) ⇄
